@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Chart with CSV Data</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+<body>
+    <div id="chart_div" style="width: 900px; height: 500px;"></div>
+
+    <script type="text/javascript">
+        // Load Google Charts library
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        // Function to draw the chart
+        function drawChart() {
+            // Load CSV data from a web URL
+            d3.csv('https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv').then(function(data) {
+                // Map species to numeric values
+                const speciesMap = {
+                    'setosa': 1,
+                    'versicolor': 2,
+                    'virginica': 3
+                };
+
+                // Parse the CSV data
+                const dataArray = [['ID', 'Sepal Length', 'Sepal Width', 'Petal Length', 'Species (Numeric)']];
+                data.forEach(function(row, index) {
+                    dataArray.push([
+                        row['species'] + ' ' + (index + 1),
+                        parseFloat(row['sepal_length']),
+                        parseFloat(row['sepal_width']),
+                        parseFloat(row['petal_length']),
+                        speciesMap[row['species']]
+                    ]);
+                });
+
+                // Convert data to Google Charts DataTable format
+                const googleData = google.visualization.arrayToDataTable(dataArray);
+
+                // Set chart options
+                const options = {
+                    title: 'Iris Dataset',
+                    hAxis: {title: 'Sepal Length'},
+                    vAxis: {title: 'Sepal Width'},
+                    bubble: {textStyle: {fontSize: 11}}
+                };
+
+                // Draw the chart
+                const chart = new google.visualization.BubbleChart(document.getElementById('chart_div'));
+                chart.draw(googleData, options);
+            }).catch(function(error) {
+                console.error('Error loading or parsing CSV:', error);
+            });
+        }
+    </script>
+</body>
+</html>
